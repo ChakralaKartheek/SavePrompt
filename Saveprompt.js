@@ -9,6 +9,7 @@
            onBefore_Submit: null,
            onBefore_Int: null,
            onFormChanged: null,
+           PromptOnClose : true,
            ignoreClass: "Prompt-ignore",
            submitClass: "Prompt-Submit",
            PromptText: "Please Save Changes. "
@@ -18,55 +19,93 @@
     var Intial_Data = $(settings.Form).serializeArray();
     var Final_data = "";
     var isChanged = false;
-    // $(":submit,." + settings.submitClass + "").attr("disabled", true);
-    //$(":submit,." + settings.submitClass + "").attr("disabled", "disabled");
+
     /*Gloabal Variables  -- End */
 
-    /*Events Fire*/
-    $(":text,select,textarea").change(function (event) {
-        $.isFormChanged();
+    var SavePromptUtil = {
 
-    });
-    $(":text,textarea").keyup(function (event) {
-        $.isFormChanged();
-    });
-   
-    $(document).click(function () {
-        $.isFormChanged();
-    });
+        /*functions*/
+        isEqual: function (obj1, obj2) {
 
-    $(":submit,." + settings.submitClass + "").click(function (e) {
-        $.isFormChanged();
-        if (isChanged) {
+            var res = true;
+            var names = SavePromptUtil.GetKeys(obj1, obj2);
+            if (obj1 != "" && obj2 != "") {
 
-            $(window).unbind('beforeunload');
-            // alert("Changed");
+                $.each(names, function (n, name) {
+
+                    // var ignoreElement = $("[name='" + name + "']").hasClass(settings.ignoreClass);
+
+                    var isSame = SavePromptUtil.isEqualwithName(obj1, obj2, name)
+
+                    if (!isSame) {
+                        res = false;
+                        return res;
+                    }
+
+                })
+            }
+
+            return res;
+
+        },
+
+        isEqualwithName: function (obj1, obj2, name) {
+            var res = false;
+
+            $.each(obj1, function (i, o1) {
+                if (o1.name == name) {
+                    $.each(obj2, function (j, o2) {
+
+                        if (o2.name == name) {
+
+                            res = ($.trim(o2.value) == $.trim(o1.value));
+                            return res;
+                        }
+
+                    });
+                }
+
+            });
+
+            return res;
+
+        },
+
+        GetKeys: function (obj1, obj2) {
+            var keys = [];
+            var keys1 = SavePromptUtil.GetFormNames(obj1);
+            var keys2 = SavePromptUtil.GetFormNames(obj2);
+            var dups = keys1.concat(keys2);
+            keys = dups.unique();
+
+
+            return keys;
+        },
+
+        GetFormNames: function (obj) {
+            var keys = [];
+
+            $.each(obj, function (i, o) {
+                var ignoreElement = $("[name='" + o.name + "']").hasClass(settings.ignoreClass);
+                if (!ignoreElement)
+                    keys.push(o.name);
+            });
+
+            return keys;
         }
-        else {
-            e.preventDefault();
-            alert("No Changes to Save ..!");
 
-        }
 
-    });
 
-    $(window).bind("beforeunload", function (e) {
+        /*functions end*/
 
-        if (isChanged) {
+    };
 
-            return settings.PromptText;
-
-        }
-
-    });
-
-    
-
-    /*Events Fire End*/
 
     /*Plug in start*/
     $.SavePrompt = function (options) {
+
         settings = $.extend({}, defaults, options);
+
         if (settings.onBefore_Int != null && (typeof (window[settings.onBefore_Int]) === 'function')) {
 
             window[settings.onBefore_Int]();
@@ -74,69 +113,107 @@
 
         Intial_Data = $(settings.Form).serializeArray();
         Final_data = Intial_Data;
+
+        /*Events Fire*/
+       
+        $(document).on("change", ":text,select,textarea", function (event) {
+            $.isFormChanged();
+
+        });
+        $(document).on("keyup", ":text,textarea", function (event) {
+            $.isFormChanged();
+        });
+        $(document).on("click", "button", function (event) {
+
+            $.isFormChanged();
+        });
+
+        $(":submit,." + settings.submitClass + "").on("click", function (e) {
+            $.isFormChanged();
+
+            if (isChanged) {
+
+                $(window).unbind('beforeunload');
+
+            }
+            else {
+                e.preventDefault();
+                //alert("No Changes to Save ..!");
+
+            }
+
+        });
+
+        $(window).on("beforeunload", function (e) {
+            $.isFormChanged();
+            if (isChanged && PromptOnClose) {
+
+                return settings.PromptText;
+
+            }
+
+        });
+
+
+        /*Events Fire End*/
+
+
+
+
+
     };
     /*plugin end*/
 
-    var isEqual = function (obj1, obj2) {
-        var res = true;
-        if (obj1 != "" && obj2 != "") {
-            for (key in obj2) {
+    Array.prototype.contains = function (v) {
+        for (var i = 0; i < this.length; i++) {
+            if (this[i] === v) return true;
+        }
+        return false;
+    };
 
-                if (res) {
-
-                    var name = obj2[key].name;
-                    var ignoreElement = $("[name='" + name + "']").hasClass(settings.ignoreClass);
-
-
-                    if (!ignoreElement &&
-                        !((obj2[key].name == obj1[key].name)
-                           && ($.trim(obj2[key].value) == $.trim(obj1[key].value)))) {
-                        res = false;
-                    }
-                }
-                else {
-                    break;
-                }
+    Array.prototype.unique = function () {
+        var arr = [];
+        for (var i = 0; i < this.length; i++) {
+            if (!arr.contains(this[i])) {
+                arr.push(this[i]);
             }
         }
+        return arr;
+    }
 
-        return res;
 
-    };
 
     $.isFormChanged = function () {
 
-        if (settings.onBefore_Submit != null && (typeof (window[settings.onBefore_Submit]) === 'function')) {
+        if ($(settings.Form).length > 0) {
 
-            window[settings.onBefore_Submit]();
-        };
-        Final_data = $(settings.Form).serializeArray();
+            if (settings.onBefore_Submit != null && (typeof (window[settings.onBefore_Submit]) === 'function')) {
 
-        isChanged = !isEqual(Intial_Data, Final_data);
-        if (settings.onFormChanged != null)
-            settings.onFormChanged(isChanged);
-        //if (isChanged) {
+                window[settings.onBefore_Submit]();
+            };
+            Final_data = $(settings.Form).serializeArray();
 
-        //    $(":submit,." + settings.submitClass + "").attr("disabled", "disabled");
-        //    //if (document.title.indexOf("- Modified") == -1) {
+            isChanged = !SavePromptUtil.isEqual(Intial_Data, Final_data);
+            if (settings.onFormChanged != null)
+                settings.onFormChanged(isChanged);
 
-        //    //    $('title').html(document.title + "- Modified");
-        //    //}
-        //}
-        //else {
-        //    $(":submit,." + settings.submitClass + "").removeAttr("disabled");
-        //    //if (document.title.indexOf("- Modified") != -1) {
 
-        //    //    $('title').html(document.title.replace("- Modified"));
-        //    //}
-
-        //}
-
-        return isChanged;
+            return isChanged;
+        }
+        return true;
 
     }
 
 
+    $.setFormChanged = function (val) {
+        isChanged = val;
+        if (settings.onFormChanged != null)
+            settings.onFormChanged(isChanged);
+    };
+
+
+
 })(jQuery);
+
 
 
