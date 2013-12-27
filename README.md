@@ -21,17 +21,19 @@ How to Use :
  
  Call this function in Page Load of the document
  
- Options to User Save Prompt
- ============================
+Options to User Save Prompt
+============================
  
-   Form : 
+   
+    Form : 
+   
          default Value : $(Form) (It identifies top most Form element in the document )
          
          we can specify to work on specific only like 
          
          Ex : Form :$("#SampleForm"),
          
-   onBefore_Int :
+    onBefore_Int :
           
           default Value : NULL
           
@@ -50,7 +52,7 @@ How to Use :
           Ex : onBefore_Submit :"Sample_onBefore_Submit"
           
           
-     onFormChanged :
+    onFormChanged :
      
            default Value : NULL
            
@@ -61,7 +63,7 @@ How to Use :
                                       // Do Some thing
                                  }
                                  
-      PromptOnClose : 
+    PromptOnClose : 
          
           default Value : TRUE
           
@@ -71,7 +73,7 @@ How to Use :
           Ex :  PromptOnClose : false
           
       
-      ignoreClass : 
+    ignoreClass : 
            
            default Value : "Prompt-ignore"
            
@@ -80,7 +82,7 @@ How to Use :
            Ex : ignoreClass : "ignore-this-element"
            
        
-       submitClass:
+    submitClass:
               
           default Value : "Prompt-Submit"
           
@@ -90,7 +92,7 @@ How to Use :
           Ex : submitClass : "Custom-Submit-button"
           
           
-        PromptText :
+     PromptText :
             
             default Value : "Please Save Changes." 
             
@@ -100,9 +102,10 @@ How to Use :
             Ex :  PromptText : "My own Prompt Text"
             
             
-    Sample Use with options
-    ==============================
-    
+Sample Use with options
+==============================
+
+    $(function () {
         $(".mySubmitButton").button();
         $(".mySubmitButton").button({ disabled: true });
 
@@ -123,6 +126,8 @@ How to Use :
                     }
                 }
             });
+            
+           });
     
     
     
