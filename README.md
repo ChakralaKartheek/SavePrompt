@@ -135,4 +135,30 @@ Sample Use with options
           
           
          
+Events :
+===========
+
+By Default Save Prompt checks on 
+TextBox and TextArea- textchange, onKeyUP
+Select - onChange
+
+
+Functions :
+==================
+
+
+ $.isFormChanged() :
  
+       To Check Programatically Form changed or not. Use  this function It returns true or false.
+       
+  
+ $.setFormChanged(val) :
+ 
+       IF you know the form is changed or not with your program. you can Set Form Changed to save prompt by using this  
+       function.
+       
+       Ex : $.setFormChanged(true);
+ 
+
+
+
