@@ -1,4 +1,3 @@
-
 (function ($) {
 
 
@@ -146,7 +145,7 @@
 
         $(window).on("beforeunload", function (e) {
             $.isFormChanged();
-            if (isChanged && PromptOnClose) {
+            if (isChanged && settings.PromptOnClose) {
 
                 return settings.PromptText;
 
